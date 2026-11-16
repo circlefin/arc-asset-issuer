@@ -1,0 +1,37 @@
+/**
+ * Copyright 2026 Circle Internet Group, Inc.  All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+// Runs lib/**/*.testnet.ts against Arc Testnet with DEV_PRIVATE_KEY from .env.local.
+// They spend testnet gas, so they're kept out of `npm test`.
+
+import { fileURLToPath } from "node:url";
+import { loadEnv } from "vite";
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  resolve: {
+    alias: { "@": fileURLToPath(new URL(".", import.meta.url)) },
+  },
+  test: {
+    include: ["lib/**/*.testnet.ts"],
+    env: loadEnv("", process.cwd(), ""),
+    testTimeout: 180_000,
+    // Every file signs with the same key, so running them at once would reuse nonces.
+    fileParallelism: false,
+  },
+});
